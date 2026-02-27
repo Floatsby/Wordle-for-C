@@ -1,8 +1,28 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2821
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+Wordle for C
 
-\f0\fs24 \cf0 README}
+A simple Wordle clone built using:
+- HTML
+- CSS
+- JavaScript
+
+## Features
+- Random word from custom dictionary (words.json)
+- 6 attempts
+- Green = correct position
+- Yellow = correct letter wrong position
+- Gray = not in word
+
+## How To Run
+
+1. Download files
+2. Open index.html in browser
+3. Start guessing!
+
+## How To Edit Word List
+
+Open words.json and add or remove words.
+All words must:
+- Be uppercase
+- Be same length
+- Be inside quotes
+- Be separated by commas

@@ -1,4 +1,4 @@
-const board = document.getElementById("board");
+const board = document.getElementById("game-board");
 const keyboard = document.getElementById("keyboard");
 const message = document.getElementById("message");
 
@@ -8,7 +8,7 @@ let currentRow = 0;
 let currentTile = 0;
 let isGameOver = false;
 
-// LOAD WORD LIST FIRST
+// Load words first
 fetch("words.json")
   .then(res => res.json())
   .then(data => {
@@ -19,15 +19,13 @@ fetch("words.json")
     console.error("Error loading words:", err);
   });
 
-// START GAME AFTER WORDS LOAD
 function startGame() {
   targetWord = getDailyWord();
-  console.log("DAILY WORD:", targetWord); // remove later if you want
+  console.log("DAILY WORD:", targetWord);
   createBoard();
   createKeyboard();
 }
 
-// DAILY WORD BASED ON LOCAL TIMEZONE
 function getDailyWord() {
   const today = new Date();
 
@@ -38,10 +36,12 @@ function getDailyWord() {
 
   const index = dateNumber % words.length;
 
-  return words[index].toLowerCase();
+  return words[index].trim().toLowerCase();
 }
 
 function createBoard() {
+  board.innerHTML = "";
+
   for (let i = 0; i < 6; i++) {
     const row = document.createElement("div");
     row.classList.add("row");
@@ -57,6 +57,8 @@ function createBoard() {
 }
 
 function createKeyboard() {
+  keyboard.innerHTML = "";
+
   const letters = "QWERTYUIOPASDFGHJKLZXCVBNM";
 
   for (let letter of letters) {
@@ -127,6 +129,7 @@ function flipTiles(row, guess) {
         } else {
           tile.classList.add("gray");
         }
+
       }, 250);
 
     }, i * 300);

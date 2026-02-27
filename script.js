@@ -95,7 +95,7 @@ function deleteLetter() {
 }
 
 function checkRow() {
-  if (currentTile !== 5) return;
+  if (currentTile !== 5 || gameOver) return;
 
   const row = board.children[currentRow];
   let guess = "";
@@ -104,11 +104,7 @@ function checkRow() {
     guess += tile.textContent.toLowerCase();
   }
 
-  if (!words.includes(guess)) {
-    message.textContent = "Not in word list";
-    return;
-  }
-
+  // FLIP + COLOR LOGIC (no word blocking)
   for (let i = 0; i < 5; i++) {
     const tile = row.children[i];
 
@@ -192,3 +188,16 @@ function launchConfetti() {
 
   update();
 }
+
+// REAL KEYBOARD SUPPORT
+document.addEventListener("keydown", function (e) {
+  if (gameOver) return;
+
+  if (e.key === "Enter") {
+    checkRow();
+  } else if (e.key === "Backspace") {
+    deleteLetter();
+  } else if (/^[a-zA-Z]$/.test(e.key)) {
+    handleInput(e.key.toUpperCase());
+  }
+});

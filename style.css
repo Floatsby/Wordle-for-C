@@ -1,0 +1,114 @@
+body {
+    margin: 0;
+    background-color: #121213;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+/* HEADER */
+header {
+    border-bottom: 1px solid #3a3a3c;
+    padding: 20px 0;
+}
+
+h1 {
+    margin: 0;
+    font-size: 32px;
+    letter-spacing: 2px;
+}
+
+/* BOARD */
+#board {
+    margin: 40px auto;
+    width: fit-content;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.tile {
+    width: 62px;
+    height: 62px;
+    border: 2px solid #3a3a3c;
+    margin: 2px;
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 62px;
+    text-transform: uppercase;
+}
+
+/* FLIP */
+.flip {
+    animation: flip 0.6s ease forwards;
+}
+
+@keyframes flip {
+    0% { transform: rotateX(0); }
+    50% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0); }
+}
+
+/* WORDLE COLORS */
+.correct { background-color: #538d4e; border: none; }
+.present { background-color: #b59f3b; border: none; }
+.absent { background-color: #3a3a3c; border: none; }
+
+/* KEYBOARD */
+#keyboard {
+    margin: 30px auto;
+    width: fit-content;
+}
+
+.key-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.key {
+    margin: 2px;
+    padding: 12px 10px;
+    min-width: 32px;
+    background-color: #818384;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.key.large {
+    min-width: 60px;
+}
+
+/* POPUP */
+.popup {
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #3a3a3c;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.show { opacity: 1; }
+
+/* CONFETTI */
+.confetti {
+    position: fixed;
+    top: -10px;
+    width: 8px;
+    height: 8px;
+    opacity: 0.8;
+    animation: fall linear forwards;
+}
+
+@keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); }
+}

@@ -8,7 +8,7 @@ let currentRow = 0;
 let currentTile = 0;
 let isGameOver = false;
 
-// LOAD WORDS FIRST
+// LOAD WORD LIST FIRST
 fetch("words.json")
   .then(res => res.json())
   .then(data => {
@@ -19,11 +19,26 @@ fetch("words.json")
     console.error("Error loading words:", err);
   });
 
+// START GAME AFTER WORDS LOAD
 function startGame() {
-  targetWord = words[Math.floor(Math.random() * words.length)].toLowerCase();
-  console.log("TARGET WORD:", targetWord); // You can remove later
+  targetWord = getDailyWord();
+  console.log("DAILY WORD:", targetWord); // remove later if you want
   createBoard();
   createKeyboard();
+}
+
+// DAILY WORD BASED ON LOCAL TIMEZONE
+function getDailyWord() {
+  const today = new Date();
+
+  const dateNumber =
+    today.getFullYear() * 10000 +
+    (today.getMonth() + 1) * 100 +
+    today.getDate();
+
+  const index = dateNumber % words.length;
+
+  return words[index].toLowerCase();
 }
 
 function createBoard() {
@@ -64,6 +79,7 @@ function createKeyboard() {
 
 function handleKey(letter) {
   if (isGameOver) return;
+
   if (currentTile < 5) {
     const row = board.children[currentRow];
     const tile = row.children[currentTile];
@@ -111,7 +127,6 @@ function flipTiles(row, guess) {
         } else {
           tile.classList.add("gray");
         }
-
       }, 250);
 
     }, i * 300);

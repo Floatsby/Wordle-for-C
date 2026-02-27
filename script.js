@@ -1,222 +1,194 @@
-// ===== WORD LIST =====
-const WORDS = [
-    "MANGO","ROBOT","PLANE","BRICK",
-    "SHINE","CLOUD","LIGHT","STONE"
-];
+let words = [];
+let targetWord = "";
 
-// ===== DAILY WORD =====
-function getDailyWord() {
-    const today = new Date();
-    const start = new Date(2024, 0, 1);
-    const diff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
-    return WORDS[diff % WORDS.length];
-}
+const board = document.getElementById("game-board");
+const keyboard = document.getElementById("keyboard");
+const message = document.getElementById("message");
 
-let secretWord = getDailyWord();
 let currentRow = 0;
-let currentGuess = "";
-let maxRows = 6;
+let currentTile = 0;
 let gameOver = false;
 
-// ===== CREATE BOARD =====
-function createBoard() {
-    const board = document.getElementById("board");
+// LOAD DICTIONARY
+fetch("words.json")
+  .then(response => response.json())
+  .then(data => {
+    words = data;
+    startGame();
+  })
+  .catch(error => {
+    console.error("Error loading words:", error);
+  });
 
-    for (let i = 0; i < maxRows; i++) {
-        const row = document.createElement("div");
-        row.classList.add("row");
+// DAILY WORD SYSTEM
+function getDailyWord() {
+  const today = new Date();
+  const seed =
+    today.getFullYear() * 1000 +
+    today.getMonth() * 100 +
+    today.getDate();
 
-        for (let j = 0; j < 5; j++) {
-            const tile = document.createElement("div");
-            tile.classList.add("tile");
-            row.appendChild(tile);
-        }
-
-        board.appendChild(row);
-    }
+  return words[seed % words.length];
 }
 
-createBoard();
+function startGame() {
+  targetWord = getDailyWord();
+  createBoard();
+  createKeyboard();
+}
 
-// ===== CREATE KEYBOARD =====
-const keyboardLayout = [
-    "QWERTYUIOP",
-    "ASDFGHJKL",
-    "ENTERZXCVBNMBACK"
-];
+function createBoard() {
+  for (let r = 0; r < 6; r++) {
+    const row = document.createElement("div");
+    row.classList.add("row");
+
+    for (let c = 0; c < 5; c++) {
+      const tile = document.createElement("div");
+      tile.classList.add("tile");
+      row.appendChild(tile);
+    }
+
+    board.appendChild(row);
+  }
+}
 
 function createKeyboard() {
-    const keyboard = document.getElementById("keyboard");
+  const letters = "QWERTYUIOPASDFGHJKLZXCVBNM";
 
-    keyboardLayout.forEach(row => {
-        const rowDiv = document.createElement("div");
-        rowDiv.classList.add("key-row");
-
-        if (row === "ENTERZXCVBNMBACK") {
-            const enter = createKey("ENTER", true);
-            rowDiv.appendChild(enter);
-
-            "ZXCVBNM".split("").forEach(letter => {
-                rowDiv.appendChild(createKey(letter));
-            });
-
-            const back = createKey("⌫", true);
-            back.dataset.key = "BACKSPACE";
-            rowDiv.appendChild(back);
-
-        } else {
-            row.split("").forEach(letter => {
-                rowDiv.appendChild(createKey(letter));
-            });
-        }
-
-        keyboard.appendChild(rowDiv);
-    });
-}
-
-function createKey(letter, large=false) {
-    const key = document.createElement("div");
+  for (let letter of letters) {
+    const key = document.createElement("button");
     key.textContent = letter;
     key.classList.add("key");
-    if (large) key.classList.add("large");
+    key.onclick = () => handleInput(letter);
+    keyboard.appendChild(key);
+  }
 
-    key.dataset.key = letter;
+  const enter = document.createElement("button");
+  enter.textContent = "ENTER";
+  enter.classList.add("key");
+  enter.onclick = checkRow;
+  keyboard.appendChild(enter);
 
-    key.addEventListener("click", () => handleKey(letter));
-    return key;
+  const del = document.createElement("button");
+  del.textContent = "DEL";
+  del.classList.add("key");
+  del.onclick = deleteLetter;
+  keyboard.appendChild(del);
 }
 
-createKeyboard();
+function handleInput(letter) {
+  if (gameOver) return;
 
-// ===== HANDLE KEY INPUT =====
-function handleKey(key) {
-    if (gameOver) return;
-
-    if (key === "ENTER") {
-        submitGuess();
-        return;
-    }
-
-    if (key === "⌫" || key === "BACKSPACE") {
-        currentGuess = currentGuess.slice(0, -1);
-        updateBoard();
-        return;
-    }
-
-    if (currentGuess.length < 5 && /^[A-Z]$/.test(key)) {
-        currentGuess += key;
-        updateBoard();
-    }
+  if (currentTile < 5) {
+    const row = board.children[currentRow];
+    row.children[currentTile].textContent = letter;
+    currentTile++;
+  }
 }
 
-// Physical keyboard support
-document.addEventListener("keydown", e => {
-    if (e.key === "Enter") handleKey("ENTER");
-    else if (e.key === "Backspace") handleKey("BACKSPACE");
-    else handleKey(e.key.toUpperCase());
-});
-
-// ===== UPDATE BOARD WHILE TYPING =====
-function updateBoard() {
-    const row = document.getElementsByClassName("row")[currentRow];
-    const tiles = row.children;
-
-    for (let i = 0; i < 5; i++) {
-        tiles[i].textContent = currentGuess[i] || "";
-    }
+function deleteLetter() {
+  if (currentTile > 0) {
+    currentTile--;
+    const row = board.children[currentRow];
+    row.children[currentTile].textContent = "";
+  }
 }
 
-// ===== SUBMIT GUESS =====
-function submitGuess() {
-    if (currentGuess.length !== 5) {
-        showPopup("Not enough letters");
-        return;
-    }
+function checkRow() {
+  if (currentTile !== 5) return;
 
-    if (!WORDS.includes(currentGuess)) {
-        showPopup("Not in word list");
-        return;
-    }
+  const row = board.children[currentRow];
+  let guess = "";
 
-    const row = document.getElementsByClassName("row")[currentRow];
-    const tiles = row.children;
+  for (let tile of row.children) {
+    guess += tile.textContent.toLowerCase();
+  }
 
-    for (let i = 0; i < 5; i++) {
-        setTimeout(() => {
-            tiles[i].classList.add("flip");
+  if (!words.includes(guess)) {
+    message.textContent = "Not in word list";
+    return;
+  }
 
-            const letter = currentGuess[i];
-            const key = document.querySelector(`[data-key="${letter}"]`);
+  for (let i = 0; i < 5; i++) {
+    const tile = row.children[i];
 
-            if (letter === secretWord[i]) {
-                tiles[i].classList.add("correct");
-                key.classList.add("correct");
-            } else if (secretWord.includes(letter)) {
-                tiles[i].classList.add("present");
-                key.classList.add("present");
-            } else {
-                tiles[i].classList.add("absent");
-                key.classList.add("absent");
-            }
-        }, i * 300);
-    }
+    tile.classList.add("flip");
 
-    if (currentGuess === secretWord) {
-        setTimeout(() => {
-            showPopup(getWinMessage(currentRow));
-            launchConfetti();
-            gameOver = true;
-        }, 1600);
-    }
-
-    currentRow++;
-    currentGuess = "";
-
-    if (currentRow === maxRows && !gameOver) {
-        setTimeout(() => {
-            showPopup("Word was " + secretWord);
-            gameOver = true;
-        }, 1600);
-    }
-}
-
-// ===== POPUP =====
-function showPopup(message) {
-    const popup = document.createElement("div");
-    popup.classList.add("popup");
-    popup.textContent = message;
-    document.body.appendChild(popup);
-
-    setTimeout(() => popup.classList.add("show"), 100);
     setTimeout(() => {
-        popup.classList.remove("show");
-        setTimeout(() => popup.remove(), 500);
-    }, 2000);
+      tile.classList.remove("flip");
+
+      if (guess[i] === targetWord[i]) {
+        tile.classList.add("correct");
+      } else if (targetWord.includes(guess[i])) {
+        tile.classList.add("present");
+      } else {
+        tile.classList.add("absent");
+      }
+    }, 250 * i);
+  }
+
+  if (guess === targetWord) {
+    showWinMessage();
+    launchConfetti();
+    gameOver = true;
+    return;
+  }
+
+  currentRow++;
+  currentTile = 0;
+
+  if (currentRow === 6) {
+    message.textContent = "The word was " + targetWord;
+    gameOver = true;
+  }
 }
 
-function getWinMessage(rowNumber) {
-    return [
-        "Genius",
-        "Magnificent",
-        "Impressive",
-        "Splendid",
-        "Great",
-        "Phew"
-    ][rowNumber];
+function showWinMessage() {
+  const messages = [
+    "Genius!",
+    "Magnificent!",
+    "Impressive!",
+    "Splendid!",
+    "Great!",
+    "Phew!"
+  ];
+
+  message.textContent = messages[currentRow];
 }
 
-// ===== CONFETTI =====
+// CONFETTI
 function launchConfetti() {
-    for (let i = 0; i < 150; i++) {
-        const confetti = document.createElement("div");
-        confetti.classList.add("confetti");
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.backgroundColor =
-            ["#538d4e","#b59f3b","#ffffff"]
-            [Math.floor(Math.random()*3)];
-        confetti.style.animationDuration =
-            (Math.random()*3+2)+"s";
-        document.body.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 5000);
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = [];
+
+  for (let i = 0; i < 150; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 6 + 2,
+      speed: Math.random() * 3 + 2
+    });
+  }
+
+  function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let p of pieces) {
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+      p.y += p.speed;
+
+      if (p.y > canvas.height) {
+        p.y = 0;
+      }
     }
+
+    requestAnimationFrame(update);
+  }
+
+  update();
 }

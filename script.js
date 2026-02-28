@@ -129,10 +129,10 @@ document.addEventListener("DOMContentLoaded", function () {
           } else {
             tile.classList.add("absent");
           }
+         title.classList.remove("flip");
+        }, 150);
 
-        }, 250);
-
-      }, i * 500);
+      }, i * 400);
     }
 
     setTimeout(() => {
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
           isGameOver = true;
         }
       }
-    }, 3000);
+    }, 2500);
   }
 
 });

@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
           } else {
             tile.classList.add("absent");
           }
-         title.classList.remove("flip");
+         tile.classList.remove("flip");
         }, 150);
 
       }, i * 400);

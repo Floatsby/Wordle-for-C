@@ -132,7 +132,6 @@ document.addEventListener("DOMContentLoaded", function () {
          tile.classList.remove("flip");
         }, 150);
 
-      }, i * 400);
     }
 
     setTimeout(() => {

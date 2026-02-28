@@ -1,152 +1,154 @@
-const board = document.getElementById("game-board");
-const keyboard = document.getElementById("keyboard");
-const message = document.getElementById("message");
+document.addEventListener("DOMContentLoaded", function () {
 
-let words = [];
-let targetWord = "";
-let currentRow = 0;
-let currentTile = 0;
-let isGameOver = false;
+  const board = document.getElementById("game-board");
+  const keyboard = document.getElementById("keyboard");
+  const message = document.getElementById("message");
 
-// Load words first
-fetch("words.json")
-  .then(res => res.json())
-  .then(data => {
-    words = data;
-    startGame();
-  })
-  .catch(err => {
-    console.error("Error loading words:", err);
-  });
+  let words = [];
+  let targetWord = "";
+  let currentRow = 0;
+  let currentTile = 0;
+  let isGameOver = false;
 
-function startGame() {
-  targetWord = getDailyWord();
-  console.log("DAILY WORD:", targetWord);
-  createBoard();
-  createKeyboard();
-}
+  fetch("words.json")
+    .then(res => res.json())
+    .then(data => {
+      words = data;
+      startGame();
+    })
+    .catch(err => {
+      console.error("Error loading words:", err);
+    });
 
-function getDailyWord() {
-  const today = new Date();
+  function startGame() {
+    targetWord = getDailyWord();
+    console.log("DAILY WORD:", targetWord);
+    createBoard();
+    createKeyboard();
+  }
 
-  const dateNumber =
-    today.getFullYear() * 10000 +
-    (today.getMonth() + 1) * 100 +
-    today.getDate();
+  function getDailyWord() {
+    const today = new Date();
 
-  const index = dateNumber % words.length;
+    const dateNumber =
+      today.getFullYear() * 10000 +
+      (today.getMonth() + 1) * 100 +
+      today.getDate();
 
-  return words[index].trim().toLowerCase();
-}
+    const index = dateNumber % words.length;
 
-function createBoard() {
-  board.innerHTML = "";
+    return words[index].trim().toLowerCase();
+  }
 
-  for (let i = 0; i < 6; i++) {
-    const row = document.createElement("div");
-    row.classList.add("row");
+  function createBoard() {
+    board.innerHTML = "";
 
-    for (let j = 0; j < 5; j++) {
-      const tile = document.createElement("div");
-      tile.classList.add("tile");
-      row.appendChild(tile);
+    for (let i = 0; i < 6; i++) {
+      const row = document.createElement("div");
+      row.classList.add("row");
+
+      for (let j = 0; j < 5; j++) {
+        const tile = document.createElement("div");
+        tile.classList.add("tile");
+        row.appendChild(tile);
+      }
+
+      board.appendChild(row);
+    }
+  }
+
+  function createKeyboard() {
+    keyboard.innerHTML = "";
+    const letters = "QWERTYUIOPASDFGHJKLZXCVBNM";
+
+    for (let letter of letters) {
+      const key = document.createElement("button");
+      key.textContent = letter;
+      key.addEventListener("click", () => handleKey(letter));
+      keyboard.appendChild(key);
     }
 
-    board.appendChild(row);
-  }
-}
+    const enter = document.createElement("button");
+    enter.textContent = "Enter";
+    enter.addEventListener("click", checkRow);
+    keyboard.appendChild(enter);
 
-function createKeyboard() {
-  keyboard.innerHTML = "";
-
-  const letters = "QWERTYUIOPASDFGHJKLZXCVBNM";
-
-  for (let letter of letters) {
-    const key = document.createElement("button");
-    key.textContent = letter;
-    key.addEventListener("click", () => handleKey(letter));
-    keyboard.appendChild(key);
+    const del = document.createElement("button");
+    del.textContent = "Del";
+    del.addEventListener("click", deleteLetter);
+    keyboard.appendChild(del);
   }
 
-  const enter = document.createElement("button");
-  enter.textContent = "Enter";
-  enter.addEventListener("click", checkRow);
-  keyboard.appendChild(enter);
+  function handleKey(letter) {
+    if (isGameOver) return;
 
-  const del = document.createElement("button");
-  del.textContent = "Del";
-  del.addEventListener("click", deleteLetter);
-  keyboard.appendChild(del);
-}
+    if (currentTile < 5) {
+      const row = board.children[currentRow];
+      const tile = row.children[currentTile];
+      tile.textContent = letter;
+      currentTile++;
+    }
+  }
 
-function handleKey(letter) {
-  if (isGameOver) return;
+  function deleteLetter() {
+    if (currentTile > 0) {
+      currentTile--;
+      const row = board.children[currentRow];
+      row.children[currentTile].textContent = "";
+    }
+  }
 
-  if (currentTile < 5) {
+  function checkRow() {
+    if (isGameOver) return;
+    if (currentTile !== 5) return;
+
     const row = board.children[currentRow];
-    const tile = row.children[currentTile];
-    tile.textContent = letter;
-    currentTile++;
-  }
-}
+    let guess = "";
 
-function deleteLetter() {
-  if (currentTile > 0) {
-    currentTile--;
-    const row = board.children[currentRow];
-    row.children[currentTile].textContent = "";
-  }
-}
+    for (let tile of row.children) {
+      guess += tile.textContent.toLowerCase();
+    }
 
-function checkRow() {
-  if (isGameOver) return;
-  if (currentTile !== 5) return;
-
-  const row = board.children[currentRow];
-  let guess = "";
-
-  for (let tile of row.children) {
-    guess += tile.textContent.toLowerCase();
+    flipTiles(row, guess);
   }
 
-  flipTiles(row, guess);
-}
-
-function flipTiles(row, guess) {
-  for (let i = 0; i < 5; i++) {
-    const tile = row.children[i];
-
-    setTimeout(() => {
-      tile.classList.add("flip");
+  function flipTiles(row, guess) {
+    for (let i = 0; i < 5; i++) {
+      const tile = row.children[i];
 
       setTimeout(() => {
-        tile.classList.remove("flip");
+        tile.classList.add("flip");
 
-        if (guess[i] === targetWord[i]) {
-          tile.classList.add("green");
-        } else if (targetWord.includes(guess[i])) {
-          tile.classList.add("yellow");
-        } else {
-          tile.classList.add("gray");
+        setTimeout(() => {
+          tile.classList.remove("flip");
+
+          if (guess[i] === targetWord[i]) {
+            tile.classList.add("green");
+          } else if (targetWord.includes(guess[i])) {
+            tile.classList.add("yellow");
+          } else {
+            tile.classList.add("gray");
+          }
+
+        }, 250);
+
+      }, i * 300);
+    }
+
+    setTimeout(() => {
+      if (guess === targetWord) {
+        message.textContent = "You Win!";
+        isGameOver = true;
+      } else {
+        currentRow++;
+        currentTile = 0;
+
+        if (currentRow === 6) {
+          message.textContent = "The word was " + targetWord;
+          isGameOver = true;
         }
-
-      }, 250);
-
-    }, i * 300);
+      }
+    }, 1800);
   }
 
-  setTimeout(() => {
-    if (guess === targetWord) {
-      message.textContent = "You Win!";
-      isGameOver = true;
-    } else {
-      currentRow++;
-      currentTile = 0;
-
-      if (currentRow === 6) {
-        message.textContent = "The word was " + targetWord;
-        isGameOver = true;
-      }
-    }
-  }, 1800);
-}
+});

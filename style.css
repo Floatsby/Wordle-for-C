@@ -36,14 +36,12 @@ h1 {
     align-items: center;
     justify-content: center;
     background-color: #121213;
-    transform-style: preserve-3d;
-    transition: transform 0.5s ease;
-    backface-visibility: hidden;
+    transition: transform 0.3s ease;
 }
 
 /* Flip animation */
 .flip {
-    transform: rotateX(180deg);
+    transform: rotateX(90deg);
 }
 
 /* Wordle Colors */

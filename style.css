@@ -16,7 +16,6 @@ h1 {
     gap: 5px;
     width: 320px;
     margin: 20px auto;
-    perspective: 1000px; /* needed for 3D flip */
 }
 
 .row {

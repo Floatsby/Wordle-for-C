@@ -1,28 +1,10 @@
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #121213;
-    color: white;
-    margin: 0;
-}
-
-h1 {
-    margin-top: 20px;
-}
-
 #game-board {
     display: grid;
     grid-template-rows: repeat(6, 1fr);
     gap: 5px;
     width: 320px;
     margin: 20px auto;
-    perspective: 600px; /* needed for 3D flip */
-}
-
-.row {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
+    perspective: 600px;
 }
 
 .tile {
@@ -31,72 +13,31 @@ h1 {
     border: 2px solid #3a3a3c;
     font-size: 2rem;
     font-weight: bold;
-    text-transform: uppercase;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #121213;
-    transition: transform 0.5s ease, background-color 0.5s ease, border-color 0.5s ease;
+    color: white;
+    text-transform: uppercase;
     transform-style: preserve-3d;
+    transition: transform 0.6s ease, background-color 0.6s ease, border-color 0.6s ease;
 }
 
-/* Flip animation */
 .flip {
-    transform: rotateX(180deg);
+    transform: rotateX(90deg);
 }
 
-/* Wordle Colors */
 .correct {
     background-color: #538d4e;
     border-color: #538d4e;
-    color: white;
 }
 
 .present {
     background-color: #b59f3b;
     border-color: #b59f3b;
-    color: white;
 }
 
 .absent {
     background-color: #3a3a3c;
     border-color: #3a3a3c;
-    color: white;
-}
-
-/* Keyboard */
-#keyboard {
-    margin-top: 20px;
-    width: 500px;
-    max-width: 90%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-#keyboard button {
-    margin: 4px;
-    padding: 10px 14px;
-    background-color: #818384;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 4px;
-}
-
-#keyboard button:hover {
-    background-color: #9a9a9c;
-}
-
-#message {
-    margin-top: 20px;
-    font-size: 1.5rem;
-    height: 40px;
-}
-
-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    pointer-events: none;
 }

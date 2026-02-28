@@ -4,19 +4,279 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wordle For C ❤️</title>
-<link rel="stylesheet" href="style.css">
+<style>
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #121213;
+    color: white;
+    margin: 0;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+#game-board {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    gap: 5px;
+    width: 320px;
+    margin: 20px auto;
+    perspective: 600px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+}
+
+.tile {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #3a3a3c;
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #121213;
+    transition: transform 0.6s ease, background-color 0.6s ease, border-color 0.6s ease;
+    transform-style: preserve-3d;
+}
+
+.flip {
+    transform: rotateX(180deg);
+}
+
+.correct {
+    background-color: #538d4e;
+    border-color: #538d4e;
+    color: white;
+}
+
+.present {
+    background-color: #b59f3b;
+    border-color: #b59f3b;
+    color: white;
+}
+
+.absent {
+    background-color: #3a3a3c;
+    border-color: #3a3a3c;
+    color: white;
+}
+
+#keyboard {
+    margin-top: 20px;
+    width: 500px;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#keyboard button {
+    margin: 4px;
+    padding: 10px 14px;
+    background-color: #818384;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+#keyboard button:hover {
+    background-color: #9a9a9c;
+}
+
+#message {
+    margin-top: 20px;
+    font-size: 1.5rem;
+    height: 40px;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+</style>
 </head>
 <body>
 
 <h1>Wordle For C ❤️</h1>
-
 <div id="game-board"></div>
 <div id="keyboard"></div>
-
 <div id="message"></div>
-
 <canvas id="confetti"></canvas>
 
-<script src="script.js"></script>
+<script>
+// --- Word Dictionary ---
+const words = [
+  "COLIN","RUFIE","LOVER","BEACH","FREAK","GAMES","COUCH","KISSY",
+  "HORNY","HEART","EMILY","DANCE"
+];
+
+// --- Game Variables ---
+const board = document.getElementById("game-board");
+const keyboard = document.getElementById("keyboard");
+const message = document.getElementById("message");
+const confettiCanvas = document.getElementById("confetti");
+const ctx = confettiCanvas.getContext("2d");
+
+let targetWord = "";
+let currentRow = 0;
+let currentTile = 0;
+let isGameOver = false;
+
+// --- Confetti Setup ---
+confettiCanvas.width = window.innerWidth;
+confettiCanvas.height = window.innerHeight;
+let confettiPieces = [];
+
+function launchConfetti() {
+  confettiPieces = [];
+  for (let i=0;i<150;i++){
+    confettiPieces.push({
+      x: Math.random()*confettiCanvas.width,
+      y: Math.random()*confettiCanvas.height,
+      size: Math.random()*6+2,
+      speed: Math.random()*3+2,
+      color: `hsl(${Math.random()*360}, 100%, 50%)`
+    });
+  }
+  requestAnimationFrame(updateConfetti);
+}
+
+function updateConfetti(){
+  ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  for(let p of confettiPieces){
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x,p.y,p.size,p.size);
+    p.y += p.speed;
+    if(p.y > confettiCanvas.height) p.y = 0;
+  }
+  requestAnimationFrame(updateConfetti);
+}
+
+// --- Daily Word Function ---
+function getDailyWord(){
+  const today = new Date();
+  const dateNumber = today.getFullYear()*10000 + (today.getMonth()+1)*100 + today.getDate();
+  return words[dateNumber % words.length].toLowerCase();
+}
+
+// --- Initialize Game ---
+function startGame(){
+  targetWord = getDailyWord();
+  createBoard();
+  createKeyboard();
+}
+
+// --- Create Board ---
+function createBoard(){
+  board.innerHTML = "";
+  for(let i=0;i<6;i++){
+    const row = document.createElement("div");
+    row.classList.add("row");
+    for(let j=0;j<5;j++){
+      const tile = document.createElement("div");
+      tile.classList.add("tile");
+      row.appendChild(tile);
+    }
+    board.appendChild(row);
+  }
+}
+
+// --- Create Keyboard ---
+function createKeyboard(){
+  keyboard.innerHTML = "";
+  const letters = "QWERTYUIOPASDFGHJKLZXCVBNM";
+  for(let l of letters){
+    const key = document.createElement("button");
+    key.textContent = l;
+    key.addEventListener("click",()=>handleKey(l));
+    keyboard.appendChild(key);
+  }
+  const enter = document.createElement("button");
+  enter.textContent = "Enter";
+  enter.addEventListener("click",checkRow);
+  keyboard.appendChild(enter);
+
+  const del = document.createElement("button");
+  del.textContent = "Del";
+  del.addEventListener("click",deleteLetter);
+  keyboard.appendChild(del);
+}
+
+// --- Handle Input ---
+function handleKey(letter){
+  if(isGameOver) return;
+  if(currentTile<5){
+    const row = board.children[currentRow];
+    const tile = row.children[currentTile];
+    tile.textContent = letter.toUpperCase();
+    currentTile++;
+  }
+}
+
+function deleteLetter(){
+  if(currentTile>0){
+    currentTile--;
+    board.children[currentRow].children[currentTile].textContent = "";
+  }
+}
+
+// --- Check Row ---
+function checkRow(){
+  if(isGameOver) return;
+  if(currentTile!==5) return;
+  const row = board.children[currentRow];
+  let guess = "";
+  for(let tile of row.children) guess += tile.textContent.toLowerCase();
+  flipTiles(row, guess);
+}
+
+// --- Flip Tiles ---
+function flipTiles(row, guess){
+  for(let i=0;i<5;i++){
+    const tile = row.children[i];
+    setTimeout(()=>{
+      tile.classList.add("flip");
+      setTimeout(()=>{
+        if(guess[i]===targetWord[i]) tile.classList.add("correct");
+        else if(targetWord.includes(guess[i])) tile.classList.add("present");
+        else tile.classList.add("absent");
+        tile.classList.remove("flip");
+      },300);
+    },i*500);
+  }
+
+  setTimeout(()=>{
+    if(guess===targetWord){
+      const praises = ["Genius","Magnificent","Impressive","Splendid","Great","Phew"];
+      message.textContent = praises[currentRow % praises.length];
+      isGameOver=true;
+      launchConfetti();
+    } else {
+      currentRow++;
+      currentTile=0;
+      if(currentRow===6){
+        message.textContent="The word was "+targetWord.toUpperCase();
+        isGameOver=true;
+      }
+    }
+  }, 3000);
+}
+
+// --- Start ---
+startGame();
+
+</script>
 </body>
 </html>

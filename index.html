@@ -259,7 +259,7 @@ function flipTiles(row, guess){
 
   setTimeout(()=>{
     if(guess===targetWord){
-      const praises = ["Genius","Magnificent","Impressive","Splendid","Great","Phew"];
+      const praises = ["You're the best boy ever","Omg you're so smart","You're so pretty and intelligent","That's so hot!","I love you","You earn 5 kisses"];
       message.textContent = praises[currentRow % praises.length];
       isGameOver=true;
       launchConfetti();

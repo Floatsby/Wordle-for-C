@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   fetch("words.json")
     .then(res => res.json())
     .then(data => {
-      words = data;
+      words = data.words;
       startGame();
     })
     .catch(err => {
@@ -123,11 +123,11 @@ document.addEventListener("DOMContentLoaded", function () {
           tile.classList.remove("flip");
 
           if (guess[i] === targetWord[i]) {
-            tile.classList.add("green");
+            tile.classList.add("correct");
           } else if (targetWord.includes(guess[i])) {
-            tile.classList.add("yellow");
+            tile.classList.add("present");
           } else {
-            tile.classList.add("gray");
+            tile.classList.add("absent");
           }
 
         }, 250);

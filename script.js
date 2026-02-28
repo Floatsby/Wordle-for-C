@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setTimeout(() => {
       if (guess === targetWord) {
-        const praises = ["Genius", "Magnificent", "Impressive", "Splendid", "Great", "Phew"];
+        const praises = ["You're the best baby", "Wow that was hot", "The smartest tiny baby", "Winner Winner", "I love you anyway", "You earn one kiss"];
         message.textContent = praises[currentRow];
         isGameOver = true;
       } else {

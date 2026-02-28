@@ -137,6 +137,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setTimeout(() => {
       if (guess === targetWord) {
+       if (guess === targetWord) {
+
+  const praises = [
+    "Genius",
+    "Magnificent",
+    "Impressive",
+    "Splendid",
+    "Great",
+    "Phew"
+  ];
+
+  message.textContent = praises[currentRow];
+  isGameOver = true;
+}
         message.textContent = "You Win!";
         isGameOver = true;
       } else {

@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
         tile.classList.add("flip");
 
         setTimeout(() => {
-          tile.classList.remove("flip");
+          
 
           if (guess[i] === targetWord[i]) {
             tile.classList.add("correct");
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }, 250);
 
-      }, i * 300);
+      }, i * 500);
     }
 
     setTimeout(() => {
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
           isGameOver = true;
         }
       }
-    }, 1800);
+    }, 3000);
   }
 
 });

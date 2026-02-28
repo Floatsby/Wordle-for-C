@@ -40,7 +40,7 @@ h1 {
 
 /* Flip animation */
 .flip {
-    transform: rotateX(90deg);
+    transform: scaleY(0);
 }
 
 /* Wordle Colors */

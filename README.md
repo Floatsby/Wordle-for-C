@@ -1,4 +1,4 @@
-Wordle for C
+## Wordle for C
 
 A simple Wordle clone built using:
 - HTML

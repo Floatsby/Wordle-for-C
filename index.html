@@ -267,7 +267,7 @@ function flipTiles(row, guess){
   // Step 3: after all tiles flip
   setTimeout(()=>{
     if(guess===targetWord){
-      const praises = ["You're the best baby","Wow that was hot","The smartest tiny baby","Winner Winner","I love you anyway","You earn one kiss"];
+      const praises = ["You're the best darlin","Wow that was hot","The smartest tiny baby","Winner Winner","I love you anyway","You earn one kiss"];
       message.textContent = praises[currentRow % praises.length];
       isGameOver=true;
       launchConfetti();
